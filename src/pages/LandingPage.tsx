@@ -1862,10 +1862,11 @@ function LandingPage() {
 						'Creator'
 					}
 					availableBalance={
-						holdings.find(h => h.creatorId === selectedTransferCreatorId)
-							?.quantity ?? 0
+						cachedHoldings.find(
+							(h) => h.creatorId === selectedTransferCreatorId
+						)?.quantity ?? 0
 					}
-					walletAddress={address ?? ''}
+					walletAddress={activeWalletAddress ?? ''}
 				/>
 			)}
 			<ScrollToTop />
