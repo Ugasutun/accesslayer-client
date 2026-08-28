@@ -36,6 +36,7 @@ import CreatorProfileErrorState from '@/components/common/CreatorProfileErrorSta
 import TransactionRetryNotice from '@/components/common/TransactionRetryNotice';
 import EmptyTransactionTimelineState from '@/components/common/EmptyTransactionTimelineState';
 import TradeDialog, { type TradeSide } from '@/components/common/TradeDialog';
+import BatchTransferModal from '@/components/common/BatchTransferModal';
 import TradePanelErrorBoundary from '@/components/common/TradePanelErrorBoundary';
 import NetworkMismatchBanner from '@/components/common/NetworkMismatchBanner';
 import StellarConnectionQualityBadge from '@/components/common/StellarConnectionQualityBadge';
@@ -281,6 +282,8 @@ function LandingPage() {
 	const [tradeSide, setTradeSide] = useState<TradeSide>('buy');
 	const [tradeDialogOpen, setTradeDialogOpen] = useState(false);
 	const [tradeSubmitting, setTradeSubmitting] = useState(false);
+	const [batchTransferDialogOpen, setBatchTransferDialogOpen] = useState(false);
+	const [selectedTransferCreatorId, setSelectedTransferCreatorId] = useState<string | null>(null);
 	const [stellarAddressCopied, setStellarAddressCopied] = useState(false);
 	const prefersReducedMotion = usePrefersReducedMotion();
 	const [sortOption, setSortOption] = useState<CourseSortOption>(() => {
@@ -834,6 +837,11 @@ function LandingPage() {
 	const openTradeDialog = useCallback((side: TradeSide) => {
 		setTradeSide(side);
 		setTradeDialogOpen(true);
+	}, []);
+
+	const openTransferDialog = useCallback((creatorId: string) => {
+		setSelectedTransferCreatorId(creatorId);
+		setBatchTransferDialogOpen(true);
 	}, []);
 
 	// Issue 554: T key opens the trade panel from the creator profile page.
@@ -1491,6 +1499,7 @@ function LandingPage() {
 												creator={creator}
 												onBuy={() => openTradeDialog('buy')}
 												onSell={() => openTradeDialog('sell')}
+												onTransfer={() => openTransferDialog(position.creatorId)}
 												isSubmitting={tradeSubmitting}
 												isNetworkMismatch={isNetworkMismatch}
 											/>
@@ -1843,6 +1852,22 @@ function LandingPage() {
 					onConfirm={handleConfirmTrade}
 				/>
 			</TradePanelErrorBoundary>
+			{selectedTransferCreatorId && (
+				<BatchTransferModal
+					open={batchTransferDialogOpen}
+					onOpenChange={setBatchTransferDialogOpen}
+					creatorId={selectedTransferCreatorId}
+					creatorName={
+						creators.find(c => c.id === selectedTransferCreatorId)?.title ??
+						'Creator'
+					}
+					availableBalance={
+						holdings.find(h => h.creatorId === selectedTransferCreatorId)
+							?.quantity ?? 0
+					}
+					walletAddress={address ?? ''}
+				/>
+			)}
 			<ScrollToTop />
 			<IdleRefreshPrompt
 				visible={isIdlePromptVisible}
