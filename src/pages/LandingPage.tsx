@@ -42,7 +42,7 @@ import NetworkMismatchBanner from '@/components/common/NetworkMismatchBanner';
 import StellarConnectionQualityBadge from '@/components/common/StellarConnectionQualityBadge';
 import { useAccount } from 'wagmi';
 import { useNetworkMismatch } from '@/hooks/useNetworkMismatch';
-import { useTradeMutation, useWalletHoldings } from '@/hooks/useWallet';
+import { useTradeMutation, useWalletHoldings, useReinvestDividendMutation } from '@/hooks/useWallet';
 import showToast from '@/utils/toast.util';
 import { getSignatureErrorMessage } from '@/utils/errorHandling.utils';
 import { formatCompactNumber, formatNumber } from '@/utils/numberFormat.utils';
@@ -67,9 +67,8 @@ import {
 	CREATOR_CARD_ENTRY_CLASS,
 	creatorCardEntryStyle,
 } from '@/utils/cardEntryAnimation.utils';
-import {
-	resolveCreatorKeyPriceStroops,
-} from '@/utils/keyPriceDisplay.utils';
+import { resolveCreatorKeyPriceStroops, formatDisplayKeyPrice } from '@/utils/keyPriceDisplay.utils';
+import { estimateReinvest } from '@/utils/reinvestDividend.utils';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { useNavigationTiming } from '@/hooks/useNavigationTiming';
 import { CREATOR_LIST_SORT_LAYOUT_TRANSITION } from '@/utils/creatorListSortTransition';
@@ -778,6 +777,7 @@ function LandingPage() {
 	const activeWalletAddress = connectedAddress || DEMO_WALLET_ADDRESS;
 
 	const tradeMutation = useTradeMutation(activeWalletAddress);
+	const reinvestMutation = useReinvestDividendMutation(activeWalletAddress);
 	const { data: cachedHoldings = [] } = useWalletHoldings(activeWalletAddress);
 
 	// Merged: keep total-value sorting (feature/holdings-sorting-tests) while
@@ -804,6 +804,7 @@ function LandingPage() {
 						isPriceLoading: isPriceRefreshing,
 						isPriceStale: creatorsAreStale,
 						pending: cached?.pending ?? false,
+						unclaimedDividend: cached?.unclaimedDividend ?? 0,
 					};
 				})
 			),
@@ -1500,7 +1501,33 @@ function LandingPage() {
 												onBuy={() => openTradeDialog('buy')}
 												onSell={() => openTradeDialog('sell')}
 												onTransfer={() => openTransferDialog(position.creatorId)}
+												onReinvest={async creatorId => {
+													const pos = heldKeyPositions.find(
+														p => p.creatorId === creatorId
+													);
+													const keyPriceStroops =
+														resolveCreatorKeyPriceStroops(pos ?? {});
+													const estimate = estimateReinvest(
+														pos?.unclaimedDividend ?? 0,
+														keyPriceStroops
+													);
+													if (!estimate) {
+														showToast.error(
+															'Reinvest estimate unavailable. Please refresh prices and try again.'
+														);
+														return;
+													}
+													await reinvestMutation.mutateAsync({
+														keyId: creatorId,
+														amount: pos?.unclaimedDividend ?? 0,
+														keys: estimate.wholeKeys,
+													});
+													showToast.success(
+														`Reinvested ${formatDisplayKeyPrice(estimate.unclaimedStroops)} — received ${formatNumber(estimate.wholeKeys)} keys`
+													);
+												}}
 												isSubmitting={tradeSubmitting}
+												isReinvesting={reinvestMutation.isPending}
 												isNetworkMismatch={isNetworkMismatch}
 											/>
 										);
