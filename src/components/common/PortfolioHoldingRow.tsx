@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { MoreHorizontal } from 'lucide-react';
 import LockupCountdown from '@/components/common/LockupCountdown';
 import { computeRemainingLockupSeconds } from '@/utils/lockupCountdown.utils';
 import { formatNumber } from '@/utils/numberFormat.utils';
@@ -73,8 +66,7 @@ export const PortfolioHoldingRow: React.FC<PortfolioHoldingRowProps> = ({
 					onExpire={() => setIsLocked(false)}
 				/>
 
-				{/* Desktop: Individual buttons */}
-				<div className="hidden sm:flex items-center gap-2">
+				<div className="flex items-center gap-2">
 					{onBuy && (
 						<Button
 							size="sm"
@@ -110,49 +102,6 @@ export const PortfolioHoldingRow: React.FC<PortfolioHoldingRowProps> = ({
 							Transfer
 						</Button>
 					)}
-				</div>
-
-				{/* Mobile: Dropdown menu */}
-				<div className="sm:hidden">
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button
-								size="sm"
-								variant="outline"
-								className="rounded-xl"
-								disabled={isNetworkMismatch || isSubmitting}
-								data-testid="holding-actions-menu"
-							>
-								<MoreHorizontal className="size-4" />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							{onBuy && (
-								<DropdownMenuItem
-									onClick={() => onBuy(position.creatorId)}
-									disabled={isNetworkMismatch || isSubmitting}
-								>
-									Buy
-								</DropdownMenuItem>
-							)}
-							{onSell && (
-								<DropdownMenuItem
-									onClick={() => onSell(position.creatorId)}
-									disabled={isLocked || isNetworkMismatch || isSubmitting}
-								>
-									Sell
-								</DropdownMenuItem>
-							)}
-							{onTransfer && (
-								<DropdownMenuItem
-									onClick={() => onTransfer(position.creatorId)}
-									disabled={isLocked || isNetworkMismatch || isSubmitting || !position.quantity}
-								>
-									Transfer
-								</DropdownMenuItem>
-							)}
-						</DropdownMenuContent>
-					</DropdownMenu>
 				</div>
 			</div>
 		</div>
