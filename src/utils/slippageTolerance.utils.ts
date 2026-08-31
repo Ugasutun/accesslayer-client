@@ -1,5 +1,5 @@
 /**
- * Slippage tolerance utilities for buy/sell trades (#872).
+ * Slippage tolerance utilities for buy/sell trades (#872, #877).
  *
  * Computes the on-chain `max_price` (buy) / `min_price` (sell) bounds from a
  * preview price and a selected tolerance percentage, so the contract call
@@ -17,6 +17,14 @@ export const SLIPPAGE_TOLERANCE_BOUNDS = {
 	MIN_PERCENT: 0,
 	MAX_PERCENT: 50,
 } as const;
+
+/** Tolerances above this percentage are rejected as invalid. */
+export const MAX_SLIPPAGE_TOLERANCE_PERCENT = 50;
+
+/** Tolerances below this percentage are rejected as invalid. */
+export const MIN_SLIPPAGE_TOLERANCE_PERCENT = 0;
+
+export type TradeSide = 'buy' | 'sell';
 
 /**
  * Validates a custom slippage tolerance input (percentage, e.g. 1.5 = 1.5%).
@@ -114,24 +122,7 @@ export function computeSlippageBounds(
 				? computeMinPriceStroops(previewPriceStroops, toleranceZPercent)
 				: null,
 	};
- * Slippage tolerance selector logic — issue #877.
- *
- * A trade preview's `max_price` (for buys) or `min_price` (for sells) is
- * the preview price adjusted by the user's selected slippage tolerance:
- * buys accept paying up to `tolerance%` more than the preview price, sells
- * accept receiving up to `tolerance%` less.
- */
-
-/** Preset tolerance options shown in the slippage selector, in percent. */
-export const SLIPPAGE_TOLERANCE_PRESETS = [0.5, 1, 5] as const;
-
-/** Tolerances above this percentage are rejected as invalid. */
-export const MAX_SLIPPAGE_TOLERANCE_PERCENT = 50;
-
-/** Tolerances below this percentage are rejected as invalid. */
-export const MIN_SLIPPAGE_TOLERANCE_PERCENT = 0;
-
-export type TradeSide = 'buy' | 'sell';
+}
 
 export interface SlippagePriceBounds {
 	/**
