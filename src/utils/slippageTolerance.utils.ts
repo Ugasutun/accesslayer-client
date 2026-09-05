@@ -124,6 +124,23 @@ export function computeSlippageBounds(
 	};
 }
 
+/**
+ * Slippage tolerance selector logic — issue #877.
+ *
+ * A trade preview's `max_price` (for buys) or `min_price` (for sells) is
+ * the preview price adjusted by the user's selected slippage tolerance:
+ * buys accept paying up to `tolerance%` more than the preview price, sells
+ * accept receiving up to `tolerance%` less.
+ */
+
+/** Tolerances above this percentage are rejected as invalid. */
+export const MAX_SLIPPAGE_TOLERANCE_PERCENT = 50;
+
+/** Tolerances below this percentage are rejected as invalid. */
+export const MIN_SLIPPAGE_TOLERANCE_PERCENT = 0;
+
+export type TradeSide = 'buy' | 'sell';
+
 export interface SlippagePriceBounds {
 	/**
 	 * Highest price the trade will accept paying, for a buy. `null` for
