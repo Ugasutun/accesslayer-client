@@ -836,17 +836,6 @@ function LandingPage() {
 		setBatchTransferDialogOpen(true);
 	}, []);
 
-	// Issue 554: T key opens the trade panel from the creator profile page.
-	useEffect(() => {
-		const handleTradeShortcut = (event: KeyboardEvent) => {
-			if (
-				event.defaultPrevented ||
-				event.repeat ||
-				!isTradeShortcut(event) ||
-				isEditableShortcutTarget(event.target)
-			) {
-				return;
-			}
 	// Callback to confirm trade via keyboard shortcut (reads current state)
 	const handleConfirmTradeViaShortcut = useCallback(() => {
 		// Trigger the confirm button click

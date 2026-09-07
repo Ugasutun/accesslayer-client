@@ -219,5 +219,4 @@ describe('slippageTolerance.utils', () => {
 		});
 	});
 });
-});
 
