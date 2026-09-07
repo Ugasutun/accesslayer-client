@@ -33,12 +33,6 @@ export const SLIPPAGE_TOLERANCE_BOUNDS = {
 	MAX_PERCENT: 50,
 } as const;
 
-/** Tolerances above this percentage are rejected as invalid. */
-export const MAX_SLIPPAGE_TOLERANCE_PERCENT = 50;
-
-/** Tolerances below this percentage are rejected as invalid. */
-export const MIN_SLIPPAGE_TOLERANCE_PERCENT = 0;
-
 export type TradeSide = 'buy' | 'sell';
 
 /**
@@ -147,7 +141,6 @@ export function computeSlippageBounds(
  * buys accept paying up to `tolerance%` more than the preview price, sells
  * accept receiving up to `tolerance%` less.
  */
-export type TradeSide = 'buy' | 'sell';
 
 export interface SlippagePriceBounds {
 	/**
